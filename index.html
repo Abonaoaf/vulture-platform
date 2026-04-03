@@ -3,186 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة فولتشر السحابية 🚀</title>
+    <title>منصة فولتشر الشاملة 🚀</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #007bff; --success: #28a745; --bg: #f4f7f6; --text: #2d3748; --danger: #dc3545; --white: #ffffff; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--text); }
-        .header { background: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        :root { --primary: #007bff; --dark: #1e293b; --success: #28a745; --danger: #dc3545; --bg: #f4f7f6; --white: #ffffff; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 0; color: #334155; }
+        
+        .header { background: var(--dark); color: white; padding: 25px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .nav-tabs { display: flex; justify-content: center; gap: 10px; background: #fff; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .tab-btn { padding: 12px 25px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; background: #e2e8f0; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        
         .container { max-width: 900px; margin: auto; padding: 20px; }
+        .section { display: none; }
+        .section.active { display: block; }
         
-        /* لوحة التحكم للمسؤول */
-        #adminArea { display: none; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-top: 4px solid var(--primary); }
-        
-        /* الجدول (نفس صورتك) */
-        .table-container { background: white; border-radius: 20px; padding: 15px; overflow-x: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { background: #f8fafc; padding: 15px; text-align: right; font-size: 0.9rem; color: #64748b; }
+        /* الجداول والبطاقات */
+        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 15px; overflow: hidden; }
+        th { background: #f8fafc; padding: 15px; text-align: right; color: #64748b; font-size: 0.9rem; }
         td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
-        .btn-icon { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; margin: 0 2px; }
+        
+        /* مدخلات البيانات */
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; }
+        .btn-main { background: var(--success); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; }
+        
+        /* أيقونات التحكم */
+        .btn-icon { width: 35px; height: 35px; border-radius: 10px; border: none; cursor: pointer; margin-left: 5px; }
         .btn-edit { background: #eef2ff; color: var(--primary); }
         .btn-del { background: #fff5f5; color: var(--danger); }
-        .btn-copy { background: #f0fdf4; color: var(--success); }
-
-        /* واجهة العميل (البطاقة المرتبة) */
-        .client-card { background: white; border-radius: 25px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); max-width: 450px; margin: 40px auto; border: 1px solid #e2e8f0; }
-        .info-row { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .expiry-alert { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
-
-        /* نافذة الإضافة */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; }
-        .loading { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        
+        .loading { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 2000; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="loading" class="loading">⚙️ جاري تحديث السحابة...</div>
+<div id="loading" class="loading">⚙️ جاري المزامنة مع السحابة...</div>
 
 <div class="header">
-    <h2>منصة فولتشر الاحترافية 🚀</h2>
+    <h1>فولتشر السحابي 🚀</h1>
+    <p>الإدارة الشاملة (المتجر + المشتركين)</p>
+</div>
+
+<div id="adminNav" class="nav-tabs" style="display:none;">
+    <button class="tab-btn active" onclick="switchTab('clients')"><i class="fas fa-users"></i> منصة العملاء</button>
+    <button class="tab-btn" onclick="switchTab('apps')"><i class="fas fa-th"></i> متجر التطبيقات</button>
 </div>
 
 <div class="container">
-    <div id="adminArea">
-        <div class="stats-grid">
-            <div class="stat-card"><h3>0</h3><p>إجمالي المشتركين</p></div>
-            <button class="btn-edit" style="padding:15px; border-radius:15px; border:none; cursor:pointer; background:var(--primary); color:white;" onclick="openModal()">+ إضافة مشترك جديد</button>
+    <div id="clients-sec" class="section">
+        <div class="card">
+            <h3>+ إضافة مشترك جديد</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" id="cName" placeholder="اسم العميل">
+                <input type="text" id="cPhone" placeholder="رقم الجوال">
+                <input type="text" id="cPlan" placeholder="نوع الاشتراك">
+                <input type="text" id="cExpiry" placeholder="تاريخ الانتهاء">
+            </div>
+            <button class="btn-main" onclick="saveData('clients')">حفظ العميل في السحابة</button>
         </div>
-
-        <div class="table-container">
+        <div class="card" style="overflow-x:auto;">
             <table>
-                <thead>
-                    <tr>
-                        <th>الاسم</th>
-                        <th>الجوال</th>
-                        <th>الاشتراك</th>
-                        <th>الانتهاء</th>
-                        <th>إجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="clientsTableBody">
-                    </tbody>
+                <thead><tr><th>الاسم</th><th>الجوال</th><th>الاشتراك</th><th>الانتهاء</th><th>إجراء</th></tr></thead>
+                <tbody id="clientsTable"></tbody>
             </table>
         </div>
     </div>
 
-    <div id="clientView" style="display:none;">
-        <div id="clientCardContainer"></div>
+    <div id="apps-sec" class="section">
+        <div class="card">
+            <h3>+ إضافة تطبيق للمتجر</h3>
+            <input type="file" id="appImgFile" accept="image/*" onchange="encodeImg(this)">
+            <input type="text" id="appName" placeholder="اسم التطبيق">
+            <input type="text" id="appCode" placeholder="كود Downloader">
+            <input type="text" id="appLink" placeholder="رابط التحميل المباشر">
+            <button class="btn-main" onclick="saveData('apps')" style="background:var(--primary)">حفظ التطبيق في المتجر</button>
+        </div>
+        <div id="appsList"></div>
     </div>
-</div>
 
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <h3>بيانات المشترك</h3>
-        <input type="hidden" id="editDocId">
-        <input type="text" id="cName" placeholder="اسم العميل">
-        <input type="text" id="cPhone" placeholder="رقم الجوال">
-        <input type="text" id="cPlan" placeholder="نوع الاشتراك">
-        <input type="text" id="cExpiry" placeholder="تاريخ الانتهاء">
-        <button onclick="saveClient()" class="btn-edit" style="width:100%; padding:15px; background:var(--success); color:white; border:none; border-radius:10px; margin-top:10px;">حفظ في السحابة ✅</button>
-        <button onclick="closeModal()" style="width:100%; margin-top:10px; border:none; background:none; cursor:pointer;">إلغاء</button>
+    <div id="userView" class="section">
+        <div id="userCardContainer"></div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, onSnapshot, doc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, deleteDoc, onSnapshot, doc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { projectId: "vulture-app-1efba" };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const colRef = collection(db, "clients");
 
     const params = new URLSearchParams(location.search);
     const isAdmin = params.get('admin') === '123';
     const userTarget = params.get('user');
 
+    // تحديد الواجهة التي تظهر
     if(isAdmin) {
-        document.getElementById('adminArea').style.display = 'block';
-        loadAdminData();
+        document.getElementById('adminNav').style.display = 'flex';
+        switchTab('clients');
+        loadClients();
+        loadApps();
     } else if(userTarget) {
-        document.getElementById('clientView').style.display = 'block';
-        loadClientView(userTarget);
+        document.getElementById('userView').classList.add('active');
+        loadUserPage(userTarget);
+    } else {
+        // إذا فتح الرابط العادي يظهر المتجر للجمهور
+        document.getElementById('apps-sec').classList.add('active');
+        loadApps();
     }
 
-    // 1. وظائف المسؤول (الجدول)
-    function loadAdminData() {
-        onSnapshot(colRef, (s) => {
-            const tbody = document.getElementById('clientsTableBody');
-            tbody.innerHTML = "";
-            s.forEach(d => {
-                const c = d.data(); const id = d.id;
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${c.name}</strong></td>
-                        <td>${c.phone}</td>
-                        <td><span style="color:var(--primary)">${c.plan}</span></td>
-                        <td style="color:var(--danger); font-weight:bold;">${c.expiry}</td>
-                        <td>
-                            <button class="btn-icon btn-copy" onclick="copyUserUrl('${c.name}')"><i class="fas fa-link"></i></button>
-                            <button class="btn-icon btn-edit" onclick="editUser('${id}', ${JSON.stringify(c).replace(/"/g,'&quot;')})"><i class="fas fa-edit"></i></button>
-                            <button class="btn-icon btn-del" onclick="deleteUser('${id}')"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-            });
-        });
+    // وظيفة التنقل بين التبويبات
+    window.switchTab = (t) => {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(t+'-sec').classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
-    // 2. واجهة العميل المرتبة
-    function loadClientView(name) {
-        onSnapshot(query(colRef, where("name", "==", name)), (s) => {
-            const container = document.getElementById('clientCardContainer');
-            if(s.empty) { container.innerHTML = "لم يتم العثور على اشتراك"; return; }
+    // جلب وحفظ العملاء
+    function loadClients() {
+        onSnapshot(collection(db, "clients"), (s) => {
+            const tbody = document.getElementById('clientsTable'); tbody.innerHTML = "";
             s.forEach(d => {
                 const c = d.data();
-                container.innerHTML = `
-                    <div class="client-card">
-                        <div style="text-align:center; margin-bottom:20px;">
-                            <div style="width:70px; height:70px; background:#f0f7ff; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:var(--primary); font-size:2rem;"><i class="fas fa-user-shield"></i></div>
-                            <h3>${c.name}</h3>
-                        </div>
-                        <div class="info-row"><span>نوع الاشتراك</span><span style="font-weight:bold; color:var(--primary)">${c.plan}</span></div>
-                        <div class="info-row expiry-alert"><span>ينتهي في</span><span style="font-weight:bold;">${c.expiry}</span></div>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-                            <a href="https://wa.me/${c.phone}" style="background:#25d366; color:white; text-decoration:none; padding:12px; border-radius:10px; text-align:center;"><i class="fab fa-whatsapp"></i> واتساب</a>
-                            <a href="#" style="background:#0088cc; color:white; text-decoration:none; padding:12px; border-radius:10px; text-align:center;"><i class="fab fa-telegram"></i> تلجرام</a>
-                        </div>
-                    </div>`;
+                tbody.innerHTML += `<tr>
+                    <td><b>${c.name}</b></td><td>${c.phone}</td><td>${c.plan}</td><td style="color:red">${c.expiry}</td>
+                    <td><button class="btn-icon btn-del" onclick="deleteItem('clients','${d.id}')">🗑️</button></td>
+                </tr>`;
             });
         });
     }
 
-    // وظائف الأزرار
-    window.saveClient = async () => {
-        const id = document.getElementById('editDocId').value;
-        const data = { name: document.getElementById('cName').value, phone: document.getElementById('cPhone').value, plan: document.getElementById('cPlan').value, expiry: document.getElementById('cExpiry').value };
+    // جلب وحفظ التطبيقات
+    function loadApps() {
+        onSnapshot(collection(db, "apps"), (s) => {
+            const list = document.getElementById('appsList'); list.innerHTML = "";
+            s.forEach(d => {
+                const a = d.data();
+                list.innerHTML += `<div class="card" style="display:flex; align-items:center; gap:15px;">
+                    <img src="${a.img}" style="width:60px; border-radius:12px;">
+                    <div style="flex-grow:1"><h4>${a.name}</h4><p>كود: ${a.code}</p></div>
+                    ${isAdmin ? `<button class="btn-icon btn-del" onclick="deleteItem('apps','${d.id}')">🗑️</button>` : `<a href="${a.link}" class="tab-btn active">تحميل</a>`}
+                </div>`;
+            });
+        });
+    }
+
+    // واجهة العميل الفردية (البطاقة المرتبة)
+    function loadUserPage(name) {
+        onSnapshot(query(collection(db, "clients"), where("name", "==", name)), (s) => {
+            const container = document.getElementById('userCardContainer');
+            if(s.empty) { container.innerHTML = "الاشتراك غير موجود"; return; }
+            s.forEach(d => {
+                const c = d.data();
+                container.innerHTML = `<div class="card" style="text-align:center; border-top: 10px solid var(--success);">
+                    <h2>مرحباً، ${c.name} 👋</h2>
+                    <hr>
+                    <p>نوع الاشتراك: <b>${c.plan}</b></p>
+                    <p style="color:var(--danger)">ينتهي في: <b>${c.expiry}</b></p>
+                    <a href="https://wa.me/${c.phone}" class="btn-main" style="display:block; text-decoration:none; background:#25d366;">تواصل عبر واتساب</a>
+                </div>`;
+            });
+        });
+    }
+
+    // الحفظ العام
+    window.saveData = async (type) => {
         document.getElementById('loading').style.display='flex';
-        id ? await updateDoc(doc(db,"clients",id), data) : await addDoc(colRef, data);
-        closeModal();
+        const data = type === 'clients' ? {
+            name: document.getElementById('cName').value,
+            phone: document.getElementById('cPhone').value,
+            plan: document.getElementById('cPlan').value,
+            expiry: document.getElementById('cExpiry').value
+        } : {
+            name: document.getElementById('appName').value,
+            code: document.getElementById('appCode').value,
+            link: document.getElementById('appLink').value,
+            img: window.currentImg
+        };
+        await addDoc(collection(db, type), data);
         document.getElementById('loading').style.display='none';
+        alert("تم الحفظ في السحابة!");
     };
 
-    window.copyUserUrl = (name) => {
-        const url = `${location.origin}${location.pathname}?user=${encodeURIComponent(name)}`;
-        navigator.clipboard.writeText(url);
-        alert("تم نسخ رابط العميل بنجاح ✅");
-    };
-
-    window.deleteUser = async (id) => { if(confirm("حذف؟")) await deleteDoc(doc(db,"clients",id)); };
-    window.openModal = () => { document.getElementById('modal').style.display='flex'; document.getElementById('editDocId').value=''; };
-    window.closeModal = () => document.getElementById('modal').style.display='none';
-    window.editUser = (id, data) => {
-        openModal();
-        document.getElementById('editDocId').value = id;
-        document.getElementById('cName').value = data.name;
-        document.getElementById('cPhone').value = data.phone;
-        document.getElementById('cPlan').value = data.plan;
-        document.getElementById('cExpiry').value = data.expiry;
-    };
+    window.deleteItem = async (col, id) => { if(confirm("حذف؟")) await deleteDoc(doc(db, col, id)); };
+    window.encodeImg = (el) => { const r = new FileReader(); r.onload = e => window.currentImg = e.target.result; r.readAsDataURL(el.files[0]); };
 </script>
 </body>
 </html>
